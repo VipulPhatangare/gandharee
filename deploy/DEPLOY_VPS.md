@@ -1,54 +1,59 @@
-# VPS Deployment Guide (Domain + Port 7117)
+# VPS Deployment Guide (Domain: `gandharree.vipulphatangare.site`, Backend Port: `7117`)
 
-This guide deploys:
+This project is already configured for:
 - **Domain:** `gandharree.vipulphatangare.site`
-- **Backend (Node/Express):** `127.0.0.1:7117`
-- **Frontend (Vite build):** served by Nginx from `frontend/dist`
+- **Backend:** Node/Express on `127.0.0.1:7117`
+- **Frontend:** static build served by Nginx from `/var/www/gandharree/frontend/dist`
+
+Use the steps below on an Ubuntu VPS.
 
 ---
 
-## 1) DNS
+## 1) Point domain to VPS
 
-Create an **A record**:
-- Host: `gandharree` (or full domain, based on your DNS provider)
-- Value: your VPS public IP
-- TTL: default
+Create DNS **A** record:
+- Host: `gandharree` (or full hostname per your DNS panel)
+- Value: `<YOUR_VPS_PUBLIC_IP>`
 
-Wait for DNS propagation.
-
----
-
-## 2) Server prerequisites (Ubuntu)
-
-Install packages:
-- `nginx`
-- `git`
-- `curl`
-- `build-essential`
-- `certbot`
-- `python3-certbot-nginx`
-- Node.js 18+ and npm
-- `pm2` globally
+Wait until DNS resolves to your server IP.
 
 ---
 
-## 3) Project location
+## 2) Install base dependencies
 
-Use this folder structure on VPS:
+```bash
+sudo apt update
+sudo apt install -y nginx git curl build-essential certbot python3-certbot-nginx ufw
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install -g pm2
+```
 
+---
+
+## 3) Place project in `/var/www/gandharree`
+
+```bash
+sudo mkdir -p /var/www/gandharree
+sudo chown -R $USER:$USER /var/www/gandharree
+cd /var/www/gandharree
+git clone <YOUR_REPO_URL> .
+```
+
+Expected structure:
 - `/var/www/gandharree/backend`
 - `/var/www/gandharree/frontend`
 
-Clone project into `/var/www/gandharree`.
-
 ---
 
-## 4) Backend setup
+## 4) Configure backend `.env`
 
-Inside `/var/www/gandharree/backend`:
-1. Install deps.
-2. Create `.env` from `.env.example`.
-3. Set production values:
+```bash
+cd /var/www/gandharree/backend
+cp .env.example .env
+```
+
+Edit `/var/www/gandharree/backend/.env` and ensure these values:
 
 ```env
 PORT=7117
@@ -61,89 +66,126 @@ RAZORPAY_KEY_ID=YOUR_RAZORPAY_KEY
 RAZORPAY_KEY_SECRET=YOUR_RAZORPAY_SECRET
 ```
 
-> Ensure `.env` is never committed (already handled via `.gitignore`).
+Then install backend dependencies:
+
+```bash
+cd /var/www/gandharree/backend
+npm install
+```
 
 ---
 
-## 5) Frontend setup
+## 5) Build frontend
 
-Inside `/var/www/gandharree/frontend`:
-1. Install deps.
-2. Build production bundle (`dist`).
+```bash
+cd /var/www/gandharree/frontend
+npm install
+npm run build
+```
 
-Your frontend uses `/api` relative calls, so no extra API URL change is needed if Nginx proxy is used.
+Your frontend API calls already use relative `/api`, so Nginx proxy handles routing automatically.
 
 ---
 
-## 6) PM2 process (Backend)
+## 6) Start backend with PM2 (port `7117`)
 
-Use PM2 config from:
+PM2 config is already prepared in:
 - `deploy/pm2/ecosystem.config.cjs`
 
-It is preconfigured for:
-- app name: `gandharree-backend`
-- backend cwd: `/var/www/gandharree/backend`
-- port: `7117`
+Run:
 
-Start app with PM2, save process list, and enable startup on reboot.
+```bash
+cd /var/www/gandharree
+pm2 start deploy/pm2/ecosystem.config.cjs
+pm2 save
+pm2 startup systemd -u $USER --hp /home/$USER
+```
+
+Then execute the extra `sudo` command shown by the previous output (PM2 prints it).
+
+Check status:
+
+```bash
+pm2 status
+pm2 logs gandharree-backend --lines 100
+```
 
 ---
 
-## 7) Nginx site config
+## 7) Configure Nginx for your domain
 
-Use:
+Nginx config file already exists in repo:
 - `deploy/nginx/gandharree.vipulphatangare.site.conf`
 
-It does:
-- serves SPA from `/var/www/gandharree/frontend/dist`
-- proxies `/api/*` to `127.0.0.1:7117`
-- proxies `/uploads/*` to `127.0.0.1:7117`
+Install it:
 
-Enable site and reload Nginx.
-
----
-
-## 8) SSL (HTTPS)
-
-Use Certbot with Nginx plugin for:
-- `gandharree.vipulphatangare.site`
-
-This will auto-create HTTPS server block and redirect HTTP -> HTTPS.
+```bash
+sudo cp /var/www/gandharree/deploy/nginx/gandharree.vipulphatangare.site.conf /etc/nginx/sites-available/gandharree.vipulphatangare.site.conf
+sudo ln -sf /etc/nginx/sites-available/gandharree.vipulphatangare.site.conf /etc/nginx/sites-enabled/gandharree.vipulphatangare.site.conf
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t
+sudo systemctl reload nginx
+```
 
 ---
 
-## 9) Firewall
+## 8) Enable HTTPS (Certbot)
 
-Open only needed ports:
-- `22` (SSH)
-- `80` (HTTP)
-- `443` (HTTPS)
+```bash
+sudo certbot --nginx -d gandharree.vipulphatangare.site
+```
 
-No need to expose 7117 publicly because Nginx proxies locally.
-
----
-
-## 10) Verify
-
-- `https://gandharree.vipulphatangare.site` should load frontend.
-- `https://gandharree.vipulphatangare.site/api/health` should return backend health JSON.
-- Uploads should work via `/uploads/...` URLs.
+Select redirect option when asked so HTTP automatically forwards to HTTPS.
 
 ---
 
-## 11) Update deploy flow (next releases)
+## 9) Firewall (UFW)
 
-On each update:
-1. Pull latest code.
-2. Install backend/frontend deps if needed.
-3. Rebuild frontend.
-4. Restart PM2 app.
-5. Reload Nginx (only if config changed).
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw --force enable
+sudo ufw status
+```
+
+Only ports `22`, `80`, `443` need to be public. Port `7117` remains internal.
 
 ---
 
-## Notes
+## 10) Verify deployment
 
-- Keep secrets only in `backend/.env` on VPS.
-- If your DB is Mongo Atlas, whitelist VPS IP.
-- If Razorpay callbacks are used later, ensure HTTPS is active.
+```bash
+curl -I https://gandharree.vipulphatangare.site
+curl https://gandharree.vipulphatangare.site/api/health
+```
+
+Expected:
+- frontend loads at `https://gandharree.vipulphatangare.site`
+- health JSON from `/api/health`
+- uploaded files available through `/uploads/...`
+
+---
+
+## 11) Future update flow
+
+```bash
+cd /var/www/gandharree
+git pull
+cd backend
+npm install
+cd ../frontend
+npm install
+npm run build
+cd ..
+pm2 restart gandharree-backend
+sudo systemctl reload nginx
+```
+
+---
+
+## Troubleshooting quick checks
+
+- PM2 app not up: `pm2 logs gandharree-backend --lines 200`
+- Nginx bad config: `sudo nginx -t`
+- Backend not reachable via proxy: confirm app listens on `127.0.0.1:7117` and `.env` has `PORT=7117`
+- Mongo connection error: verify `MONGO_URI` and network/IP allowlist (if using Atlas)
