@@ -79,7 +79,7 @@ const DishDetails = () => {
   if (!dish) return null;
 
   const arSrc = dish.arModelFile
-    ? (dish.arModelFile.startsWith('http') ? dish.arModelFile : `http://localhost:5000${dish.arModelFile}`)
+    ? (dish.arModelFile.startsWith('http') ? dish.arModelFile : `${window.location.origin}${dish.arModelFile}`)
     : null;
 
   const foodTypeColor = getFoodTypeDot(dish.foodType);
