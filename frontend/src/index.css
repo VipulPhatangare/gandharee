@@ -1,0 +1,301 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --gold: #D4AF37;
+  --gold-light: #F0D060;
+  --gold-dark: #A88B20;
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #111111;
+  --bg-card: #1A1A1A;
+  --bg-glass: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-primary: #F5F0E8;
+  --text-secondary: #A0998A;
+  --text-muted: #6B6560;
+  --accent-red: #E8453C;
+  --accent-green: #2ECC71;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* ─── Typography ─── */
+.font-display { font-family: 'Playfair Display', serif; }
+
+/* ─── Glass Card ─── */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+/* ─── Gradient text ─── */
+.text-gold-gradient {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Buttons ─── */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: #0A0A0A;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  font-family: 'Inter', sans-serif;
+  touch-action: manipulation;
+}
+.btn-gold:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+}
+.btn-gold:active { transform: scale(0.97); }
+.btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50px;
+  padding: 10px 24px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  touch-action: manipulation;
+}
+.btn-ghost:hover { background: var(--gold); color: #0A0A0A; }
+.btn-ghost:active { transform: scale(0.97); }
+
+/* ─── Input ─── */
+.input-gold {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 10px;
+  padding: 12px 16px;
+  width: 100%;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+.input-gold:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.08); }
+.input-gold::placeholder { color: var(--text-muted); }
+.input-gold[readonly] { cursor: not-allowed; }
+
+/* ─── Skeleton shimmer ─── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, rgba(255,255,255,0.06) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* ─── Animations ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(212,175,55,0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-fade-up { animation: fadeInUp 0.5s ease forwards; }
+.animate-fade-in { animation: fadeIn 0.4s ease forwards; }
+.animate-pulse-gold { animation: pulse-gold 2s infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+/* ─── Stagger ─── */
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* ─── Dish card ─── */
+.dish-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.dish-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.5); }
+.dish-card .card-image { overflow: hidden; }
+.dish-card:hover .card-image img { transform: scale(1.08); }
+.dish-card .card-image img { transition: transform 0.5s ease; }
+
+/* ─── Status steps ─── */
+.status-step-active { color: var(--gold); border-color: var(--gold); background: rgba(212,175,55,0.12); }
+.status-step-done { color: var(--accent-green); border-color: var(--accent-green); background: rgba(46,204,113,0.12); }
+
+/* ─── Overlay ─── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 50;
+}
+
+/* ─── Cart drawer ─── */
+.cart-drawer {
+  position: fixed; right: 0; top: 0;
+  height: 100vh; width: min(420px, 100vw);
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  z-index: 60;
+  display: flex; flex-direction: column;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Badge styles ─── */
+.badge-veg { border: 2px solid #2ECC71; }
+.badge-nonveg { border: 2px solid #E8453C; }
+.badge-jain { border: 2px solid #F39C12; }
+.badge-vegan { border: 2px solid #27AE60; }
+
+/* ─── Table badge pulse ─── */
+@keyframes table-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(46,204,113,0); }
+}
+.table-badge-pulse { animation: table-pulse 2s infinite; }
+
+/* ══════════════════════════
+   MOBILE RESPONSIVE STYLES
+══════════════════════════ */
+
+/* Navbar mobile */
+@media (max-width: 768px) {
+  .navbar-links { display: none !important; }
+  .navbar-mobile-menu { display: flex !important; }
+}
+
+/* Checkout grid → single column on mobile */
+@media (max-width: 700px) {
+  .checkout-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .checkout-summary-sticky {
+    position: static !important;
+    order: -1;
+  }
+}
+
+/* Dish details hero height on mobile */
+@media (max-width: 640px) {
+  .dish-hero { height: 220px !important; }
+  .btn-gold, .btn-ghost { padding: 11px 20px; font-size: 0.88rem; }
+}
+
+/* Cart grid → single column on mobile */
+@media (max-width: 700px) {
+  .cart-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .cart-summary-sticky { position: static !important; }
+}
+
+/* Admin sidebar mobile */
+.admin-sidebar-desktop { display: none; }
+.admin-mobile-header { display: none !important; }
+
+@media (min-width: 768px) {
+  .admin-sidebar-desktop { display: block !important; }
+}
+@media (max-width: 767px) {
+  .admin-mobile-header { display: flex !important; }
+}
+
+/* Admin cards wrapping on mobile */
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 400px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Table grid on mobile */
+@media (max-width: 550px) {
+  .table-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* QR grid on mobile */
+@media (max-width: 500px) {
+  .qr-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Home section padding mobile */
+@media (max-width: 640px) {
+  .home-section { padding: 3rem 1rem !important; }
+  .home-feature-grid { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* Nutrition grid on mobile */
+@media (max-width: 400px) {
+  .nutrition-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* General mobile improvements */
+@media (max-width: 768px) {
+  .glass-card { border-radius: 12px; }
+  h1.font-display { font-size: clamp(1.6rem, 6vw, 2.5rem) !important; }
+}
+
+/* Prevent content from going under fixed navbars */
+@media (max-width: 640px) {
+  main { padding-bottom: 80px; }
+}
+
+/* Floating cart fab for mobile */
+.cart-fab {
+  position: fixed; bottom: 20px; right: 20px;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none; cursor: pointer; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 28px rgba(212,175,55,0.45);
+  transition: transform 0.2s;
+}
+.cart-fab:active { transform: scale(0.92); }
