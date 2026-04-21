@@ -130,6 +130,34 @@ Password: admin123
 
 ---
 
+## 9. VPS Deployment (Domain + Port)
+
+Target production setup:
+
+- Domain: `gandharree.vipulphatangare.site`
+- Backend port: `7117`
+
+Use deployment files added under `deploy/`:
+
+- `deploy/DEPLOY_VPS.md` → full step-by-step VPS guide
+- `deploy/nginx/gandharree.vipulphatangare.site.conf` → Nginx site config
+- `deploy/pm2/ecosystem.config.cjs` → PM2 process config
+
+### Quick summary
+
+1. Point DNS A record of `gandharree.vipulphatangare.site` to VPS IP.
+2. Deploy project to `/var/www/gandharree`.
+3. Set backend `.env` with:
+  - `PORT=7117`
+  - `FRONTEND_URL=https://gandharree.vipulphatangare.site`
+  - production secrets (Mongo/JWT/Razorpay)
+4. Build frontend (`frontend/dist`).
+5. Run backend with PM2 using provided ecosystem file.
+6. Configure and enable Nginx with provided config.
+7. Add SSL using Certbot.
+
+---
+
 ## API Endpoints Reference
 
 | Method | Endpoint | Description |
