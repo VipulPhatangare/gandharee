@@ -3,3 +3,11 @@
 **/.env.*
 !**/.env.example
 !**/.env.*.example
+
+# Local MongoDB runtime data/logs
+.mongo-data/
+.mongo-log/
+
+# Common local artifacts
+**/node_modules/
+*.log
